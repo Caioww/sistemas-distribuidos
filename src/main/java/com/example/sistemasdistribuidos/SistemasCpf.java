@@ -3,9 +3,7 @@ package com.example.sistemasdistribuidos;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -18,72 +16,65 @@ public class SistemasCpf {
   
 	private static final String VIRGULA = "\n";
     private static BufferedReader reader;
+    private static String linha = null;
+    private static FileWriter filew = null;
     
     private static final List<String[]> lista = Collections.synchronizedList(new ArrayList<>());
     
+    private static final List<String> numerosCpf = new ArrayList<>();
+    private static final List<String> numerosCnpj = new ArrayList<>();
+    
+    
 
      public static void main(String[] args) throws Exception {
+    	 
     	 long start = System.currentTimeMillis();
+    	 //Abrindo arquivo para leitura
+         File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
+         reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+         
+         filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
+         PrintWriter gravarArq = new PrintWriter(filew);
+		
+         while ((linha = reader.readLine()) != null) {
+		     String[] str = linha.split(VIRGULA);
+		     String valida = Arrays.toString(str);
+        	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
+        	 
+
+            
+		     Thread tr = new Thread(new CpfCnpj(valida, gravarArq));
+		     tr.start();
+		     
+    
+		}
+
+         
+         //Abrindo arquivo para escrita
+		
+         
+     
+         
  
-    	 Thread t1 = new Thread(new Runnable() {
+    	 /*Thread t1 = new Thread(new Runnable() {
 	             @Override
 	             public void run() {
-		    	//Abrindo arquivo para escrita
-		         FileWriter filew = null;
-				try {
-					filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		         PrintWriter gravarArq = new PrintWriter(filew);
-		    	 
-		    	 //Abrindo arquivo para leitura
-		         File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
-		         try {
-					reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		         String linha = null;
-		         
-		         try {
-					while ((linha = reader.readLine()) != null) {
-					     String[] dadosUsuario = linha.split(VIRGULA);
-					     lista.add(dadosUsuario);
-					    
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		  	      
-		         for( String[] str : lista) {
-		        	 String valida = Arrays.toString(str);
-		        	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
-		        	 
-		        	 //Verifica se é Cpf, caso retorne falso é um Cnpj
-		             boolean validaCpf = verificaEhCpf(valida);
-		             
-		             String numero;
-		             if(validaCpf) {
-		            	 VerificadorCpf verificarCPF = new VerificadorCpf();
-		            	 numero = verificarCPF.obterNumeracaoCPF(valida);
-		             }else {
-		            	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
-		            	 numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
-		    	    
-		             }        
-		             gravaNoArquivo(numero, gravarArq);    
-		    	 }
-
-				try {
-					filew.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	             long start = System.currentTimeMillis();
+		            for( String[] str : lista) {
+			        	
+			        		 String valida = Arrays.toString(str);
+			            	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
+			            	 
+			            	 //Verifica se é Cpf, caso retorne falso é um Cnpj
+			                 boolean validaCpf = verificaEhCpf(valida);
+			                 if(!validaCpf) {
+			                	 retornaNumeroCnpj(str, valida);
+			                 }
+			        	  
+		            }
+			    				
+				long tempoFinal = System.currentTimeMillis();	
+			    System.out.printf("Primeira Thread: %.3f ms%n", (tempoFinal - start) / 1000d);
 				
 		     }
     	 });
@@ -91,143 +82,69 @@ public class SistemasCpf {
     	 Thread t2 = new Thread(new Runnable() {
              @Override
              public void run() {
-	    	//Abrindo arquivo para escrita
-	         FileWriter filew = null;
-			try {
-				filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	         PrintWriter gravarArq = new PrintWriter(filew);
-	    	 
-	    	 //Abrindo arquivo para leitura
-	         File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
-	         try {
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	         String linha = null;
-	         
-	         try {
-				while ((linha = reader.readLine()) != null) {
-				     String[] dadosUsuario = linha.split(VIRGULA);
-				     lista.add(dadosUsuario);
-				    
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	  	      
-	         for( String[] str : lista) {
-	        	 String valida = Arrays.toString(str);
-	        	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
-	        	 
-	        	 //Verifica se é Cpf, caso retorne falso é um Cnpj
-	             boolean validaCpf = verificaEhCpf(valida);
-	             
-	             String numero;
-	             if(validaCpf) {
-	            	 VerificadorCpf verificarCPF = new VerificadorCpf();
-	            	 numero = verificarCPF.obterNumeracaoCPF(valida);
-	             }else {
-	            	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
-	            	 numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
-	    	    
-	             }        
-	             gravaNoArquivo(numero, gravarArq);    
-	    	 }
-
-			try {
-				filew.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	            long start = System.currentTimeMillis();
+	            
+	            for( String[] str : lista) {
+		        	
+		        		 String valida = Arrays.toString(str);
+		            	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
+		            	 
+		            	 //Verifica se é Cpf, caso retorne falso é um Cnpj
+		                 boolean validaCpf = verificaEhCpf(valida);
+		                 if(validaCpf) {
+		                	 retornaNumeroCpf(str, valida);
+		                 }	               
+		        	 
+	            }
+		
+				long tempoFinal = System.currentTimeMillis();
+			    System.out.printf("Segunda Thread:%.3f ms%n", (tempoFinal - start) / 1000d);
 			
 	     }
 	 });
+
     	 
-    	 Thread t3 = new Thread(new Runnable() {
-             @Override
-             public void run() {
-	    	//Abrindo arquivo para escrita
-	         FileWriter filew = null;
-			try {
-				filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	         PrintWriter gravarArq = new PrintWriter(filew);
-	    	 
-	    	 //Abrindo arquivo para leitura
-	         File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
-	         try {
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	         String linha = null;
-	         
-	         try {
-				while ((linha = reader.readLine()) != null) {
-				     String[] dadosUsuario = linha.split(VIRGULA);
-				     lista.add(dadosUsuario);
-				    
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	  	      
-	         for( String[] str : lista) {
-	        	 String valida = Arrays.toString(str);
-	        	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
-	        	 
-	        	 //Verifica se é Cpf, caso retorne falso é um Cnpj
-	             boolean validaCpf = verificaEhCpf(valida);
-	             
-	             String numero;
-	             if(validaCpf) {
-	            	 VerificadorCpf verificarCPF = new VerificadorCpf();
-	            	 numero = verificarCPF.obterNumeracaoCPF(valida);
-	             }else {
-	            	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
-	            	 numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
-	    	    
-	             }        
-	             gravaNoArquivo(numero, gravarArq);    
-	    	 }
-
-			try {
-				filew.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-	     }
-	 });
-	    	 
-	     t1.start();
+    	 t1.start();
 	     t2.start();
-	     t3.start();
-	  
 	     
-	     long tempoFinal = System.currentTimeMillis();
-
-	     System.out.printf("%.3f ms%n", (tempoFinal - start) / 1000d);
+	     t1.join();
+	     t2.join();
 	     
+	     for(String numeros: numerosCpf) {
+	    		numerosCnpj.add(numeros);
+	    	}
 	     
+	     for(String arquivo: numerosCnpj) {
+	    	 gravaNoArquivo(arquivo, gravarArq);
+	     }*/
+	     long tempoFinal = System.currentTimeMillis();	
+		  System.out.printf("Tempo Total: %.3f ms%n", (tempoFinal - start) / 1000d);
 	     
+	     filew.close();
+         
      }
      
-     private synchronized static void gravaNoArquivo(String n,PrintWriter gravarArq) {
+     private static void retornaNumeroCnpj(String[] str, String valida) {
+    	
+         
+         	 String numero;
+         
+        	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
+        	 numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
+        	 numerosCnpj.add(numero);
+	    
+    
+     }
+     
+     private static void retornaNumeroCpf(String[] str, String valida) {
+    	 String numero;
+        	 VerificadorCpf verificarCPF = new VerificadorCpf();
+        	 numero = verificarCPF.obterNumeracaoCPF(valida);
+        	 numerosCpf.add(numero);
+
+     }
+     
+     private static synchronized void gravaNoArquivo(String n,PrintWriter gravarArq) {
          gravarArq.println(n);
      }
  
