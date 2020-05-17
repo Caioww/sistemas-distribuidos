@@ -16,12 +16,6 @@ public class SistemasCpf {
 	private static final String VIRGULA = "\n";
     private static BufferedReader reader;
     
-    
-    
-    
-    
-
-
 
      public static void main(String[] args) throws Exception {
     	 
@@ -41,8 +35,7 @@ public class SistemasCpf {
              lista.add(dadosUsuario);
             
         }
-         
-         
+        
          for( String[] str : lista) {
         	 String valida = Arrays.toString(str);
         	 valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
@@ -59,20 +52,13 @@ public class SistemasCpf {
             	 numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
     	    
              }
-             
-             
              gravarArq.println(numero);
-            
          }
              
-         filew.close();
-         
+         filew.close();         
 		
      }
-     
-     
-   
-     
+ 
      static boolean verificaEhCpf(String numero) {
     	 return numero.length() == 9;
     	 
