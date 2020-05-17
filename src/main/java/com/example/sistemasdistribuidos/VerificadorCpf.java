@@ -1,7 +1,5 @@
 package com.example.sistemasdistribuidos;
 
-import java.util.Scanner;
-
 import org.springframework.stereotype.Component;
 
 

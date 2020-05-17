@@ -1,6 +1,7 @@
 package com.example.sistemasdistribuidos;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
@@ -27,13 +28,12 @@ public class SistemasCpf {
     	 List<String[]> lista = new ArrayList<String[]>();
     	 
     	//Abrindo arquivo para escrita
-         FileWriter arq = new FileWriter("C:\\Users\\Caiow\\Documents\\SAIDAFORMAT.txt");
-         PrintWriter gravarArq = new PrintWriter(arq);
+         FileWriter filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
+         PrintWriter gravarArq = new PrintWriter(filew);
     	 
     	 //Abrindo arquivo para leitura
-         String arquivo = "C:\\Users\\Caiow\\Documents\\BASEPROJETO.txt";
-   
-         reader = new BufferedReader(new InputStreamReader(new FileInputStream(arquivo)));
+         File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
+         reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
          String linha = null;
          
          while ((linha = reader.readLine()) != null) {
@@ -65,7 +65,7 @@ public class SistemasCpf {
             
          }
              
-         arq.close();
+         filew.close();
          
 		
      }
