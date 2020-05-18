@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
+
 public class SistemasCpf {
   
 	private static final String VIRGULA = "\n";
@@ -24,7 +25,7 @@ public class SistemasCpf {
     
 
      public static void main(String[] args) throws Exception {
-    	 	 
+    	 
     	 //Abrindo arquivo para leitura
          File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
 		 reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -40,26 +41,21 @@ public class SistemasCpf {
 		 filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
 		 PrintWriter gravarArq = new PrintWriter(filew);
    
-
+         long start = System.currentTimeMillis();
     	 Thread t1 = new Thread(new Runnable() {
 	             @Override
-	             public void run() {
-	            long start = System.currentTimeMillis();
-	            final ExecutorService executor = Executors.newFixedThreadPool(5);
+	             public void run() {	
+	            	ExecutorService executor = Executors.newFixedThreadPool(5);
 		            for( String[] str : lista) {
-		            	executor.submit(new CpfCnpj(str, gravarArq));
+		            	Runnable CpfCnpj = new CpfCnpj(str, gravarArq);
+		            	executor.execute(CpfCnpj);
 		            }
-		            executor.shutdown();
-		            while (!executor.isTerminated()) {
-		            }
-		            System.out.println("Finished all threads");
-			    				
-				long tempoFinal = System.currentTimeMillis();
-				
-				
-			    System.out.printf("Primeira Thread: %.3f ms%n", (tempoFinal - start) / 1000d);
-				
-		     }
+	            	executor.shutdown();
+	                while (!executor.isTerminated()) {
+	                }
+	                System.out.println("Finished all threads");
+
+	             }
     	 });
     	 
     	 t1.start(); 
@@ -67,7 +63,8 @@ public class SistemasCpf {
 	     
 	     filew.close();
 
-	     System.out.printf("Finalizando tudo");
+	     long tempoFinal = System.currentTimeMillis();
+	     System.out.printf("Tempo Final: %.3f ms%n", (tempoFinal - start) / 1000d);
          
      }
 
