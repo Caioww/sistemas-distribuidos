@@ -1,30 +1,33 @@
 package com.example.sistemasdistribuidos;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class CpfCnpj implements Runnable {
 	
     
-	public PrintWriter gravarArq;
-    public String valida;
+	public FileWriter filew;
+    public String[] cpf;
     
-    public CpfCnpj(String valida,  PrintWriter gravarArq){
-        this.valida=valida;
+    public CpfCnpj(String [] cpf, FileWriter filew){
+        this.cpf=cpf;
+        this.filew=filew;
     }
 
 	@Override
 	public void run() {
 		
-      
-		
-   	 
-   	 //Verifica se é Cpf, caso retorne falso é um Cnpj
+		PrintWriter gravarArq = new PrintWriter(filew);
+		String valida = Arrays.toString(cpf);
+   	 	valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
         boolean validaCpf = verificaEhCpf(valida);
         
         
         if(validaCpf) {
        	 VerificadorCpf verificarCPF = new VerificadorCpf();
-       	String numero = verificarCPF.obterNumeracaoCPF(valida);
+       	 String numero = verificarCPF.obterNumeracaoCPF(valida);
        	 gravarArq.println(numero);
        	 
         }else {
@@ -33,6 +36,7 @@ public class CpfCnpj implements Runnable {
        	gravarArq.println(numero);
        	 
         }
+       
        
 		
 		
