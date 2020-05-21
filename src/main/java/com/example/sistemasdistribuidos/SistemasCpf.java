@@ -9,7 +9,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 
@@ -27,6 +28,7 @@ public class SistemasCpf {
 
      public static void main(String[] args) throws Exception {
     	 
+    	 long start = System.currentTimeMillis();
     	 //Abrindo arquivo para leitura
          File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
 		 reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -64,35 +66,35 @@ public class SistemasCpf {
 		 filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
 		 PrintWriter gravarArq = new PrintWriter(filew);
    
-         long start = System.currentTimeMillis();
-    	 Thread t1 = new Thread(new Runnable() {
-	             @Override
-	             public void run() {	
-	            	try{
-	            	CountDownLatch latch = new CountDownLatch(4);
-	            	Thread t2 = new Thread(new CpfCnpj(lista1, gravarArq));
-	            	Thread t3 = new Thread(new CpfCnpj(lista2, gravarArq));
-	            	Thread t4 = new Thread(new CpfCnpj(lista3, gravarArq));
-	            	Thread t5 = new Thread(new CpfCnpj(lista4, gravarArq));
+         
+         Thread t1 = new Thread(new Runnable() {
+             @Override
+             public void run() {	
+            	ExecutorService executor = Executors.newFixedThreadPool(4);
+	            Runnable CpfCnpj = new CpfCnpj(lista1, gravarArq);
+	            executor.execute(CpfCnpj);
+	            
+	            Runnable CpfCnpj1 = new CpfCnpj(lista2, gravarArq);
+	            executor.execute(CpfCnpj1);
+	            
+	            Runnable CpfCnpj2 = new CpfCnpj(lista3, gravarArq);
+	            executor.execute(CpfCnpj2);
+	            
+	            Runnable CpfCnpj3 = new CpfCnpj(lista4, gravarArq);
+	            executor.execute(CpfCnpj3);
+	           
+            	executor.shutdown();
+                while (!executor.isTerminated()) {
+                }
+                System.out.println("Finished all threads");
 
-	            	
-	            	t2.start();
-	            	t3.start();
-	            	t4.start();
-	            	t5.start();
-	            	
-	            	latch.await();
-	                System.out.println("In Main thread after completion of 1000 threads");
-		            }catch(Exception err){
-		                err.printStackTrace();
-		            }
-
-	             }
-    	 });
+             }
+	 });
+	 
+	 t1.start(); 
+     t1.join();
     	 
-    	 t1.start(); 
-	     t1.join();
-	     
+
 	     filew.close();
 
 	     long tempoFinal = System.currentTimeMillis();
