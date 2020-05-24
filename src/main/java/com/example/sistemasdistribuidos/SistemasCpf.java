@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 
@@ -38,11 +36,6 @@ public class SistemasCpf {
 		    
 		}
          
-         //Adicionando dados do array + indice
-         List<Numeros> numeros = new ArrayList<Numeros>();
-         for(int i=0; i<lista.size(); i++) {
-        	 numeros.add(new Numeros(Arrays.toString(lista.get(i)), i));
-         }
          
          //Abrindo arquivo para escrita
 		 filew = new FileWriter(SistemasCpf.class.getResource("/arquivosCpfCnpj/CPFCNPJ.txt").getFile());
@@ -50,36 +43,40 @@ public class SistemasCpf {
 		 
          long start = System.currentTimeMillis();
          
-    	 Thread t1 = new Thread(new Runnable() {
-	             @Override
-	             public void run() {	
-	            	ExecutorService executor = Executors.newFixedThreadPool(4);
-		            for( Numeros str : numeros) {
-		            	Runnable CpfCnpj = new CpfCnpj(str, numeros, gravarArq);
-		            	executor.execute(CpfCnpj);
-		            }
-	            	executor.shutdown();
-	                while (!executor.isTerminated()) {
-	                }
-	                System.out.println("Finished all threads");
-
-	             }
-    	 });
     	 
-    	 t1.start(); 
-	     t1.join();
+		 for( String[] str : lista) {
+			 	
+			 	String valida = Arrays.toString(str);
+		   	 	valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
+		   	 	
+		   	 	//Verifica se o numero é um CPF ou um CNPJ
+		        boolean validaCpf = verificaEhCpf(valida);
+		        
+		        if(validaCpf) {
+		       	 VerificadorCpf verificarCPF = new VerificadorCpf();
+		       	 String numero = verificarCPF.obterNumeracaoCPF(valida);
+		       	 gravarArq.println(numero);
 
-	     //Gravar numeros após calculo em novo arquivo
-	     for(Numeros str:numeros) {
-	    	 gravarArq.println(str.getNumero());
-	     }
-	     
+		        }else {
+		       	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
+		       	 String numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
+		       	 gravarArq.println(numero);
+		  	 
+		       }           
+
+		 }
+
 	     filew.close();
 
 	     long tempoFinal = System.currentTimeMillis();
 	     System.out.printf("Tempo Final: %.3f ms%n", (tempoFinal - start) / 1000d);
          
      }
+     
+     private static boolean verificaEhCpf(String numero) {
+       	 return numero.length() == 9;
+       	 
+        }
 
      
 }
