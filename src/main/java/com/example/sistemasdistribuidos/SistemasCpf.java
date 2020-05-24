@@ -49,6 +49,7 @@ public class SistemasCpf {
 		 PrintWriter gravarArq = new PrintWriter(filew);
 		 
          long start = System.currentTimeMillis();
+         
     	 Thread t1 = new Thread(new Runnable() {
 	             @Override
 	             public void run() {	
@@ -68,6 +69,7 @@ public class SistemasCpf {
     	 t1.start(); 
 	     t1.join();
 
+	     //Gravar numeros após calculo em novo arquivo
 	     for(Numeros str:numeros) {
 	    	 gravarArq.println(str.getNumero());
 	     }

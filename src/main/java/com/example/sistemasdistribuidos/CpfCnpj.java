@@ -22,6 +22,8 @@ public class CpfCnpj implements Runnable {
 		
 		String valida = cpf.getNumero();
    	 	valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
+   	 	
+   	 	//Verifica se o numero é um CPF ou um CNPJ
         boolean validaCpf = verificaEhCpf(valida);
         
         if(validaCpf) {
@@ -42,7 +44,7 @@ public class CpfCnpj implements Runnable {
 		lista.set(cpf2.getIndice(), new Numeros(numero, cpf.getIndice()));
 	}
 
-	static boolean verificaEhCpf(String numero) {
+	private boolean verificaEhCpf(String numero) {
    	 return numero.length() == 9;
    	 
     }
