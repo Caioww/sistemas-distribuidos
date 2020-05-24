@@ -31,14 +31,14 @@ public class SistemasCpf {
          File file = new File(SistemasCpf.class.getResource("/arquivosCpfCnpj/BASEPROJETO.txt").getFile());
 		 reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
-         //Adicionando numeros em um array
+         //Adicionando numeros do arquivo em um array
          while ((linha = reader.readLine()) != null) {
 		     String[] dadosUsuario = linha.split(VIRGULA);
 		     lista.add(dadosUsuario);
 		    
 		}
          
-         //Adicionando dados do array + indice
+         //Adicionando dados do array lista para um array que recebe objetos para armazenar posição
          List<Numeros> numeros = new ArrayList<Numeros>();
          for(int i=0; i<lista.size(); i++) {
         	 numeros.add(new Numeros(Arrays.toString(lista.get(i)), i));
@@ -50,10 +50,13 @@ public class SistemasCpf {
 		 
          long start = System.currentTimeMillis();
          
+         //Instanciando Thread de gerenciamento
     	 Thread t1 = new Thread(new Runnable() {
 	             @Override
 	             public void run() {	
+	            	//Fila de 4 Threads pré instanciadas
 	            	ExecutorService executor = Executors.newFixedThreadPool(4);
+	            	//Para cada numero a Thread que estiver disponível faz o cálculo desse número
 		            for( Numeros str : numeros) {
 		            	Runnable CpfCnpj = new CpfCnpj(str, numeros, gravarArq);
 		            	executor.execute(CpfCnpj);
@@ -69,7 +72,7 @@ public class SistemasCpf {
     	 t1.start(); 
 	     t1.join();
 
-	     //Gravar numeros após calculo em novo arquivo
+	     //Gravar numeros em novo arquivo após a Thread t1 terminar a execução.
 	     for(Numeros str:numeros) {
 	    	 gravarArq.println(str.getNumero());
 	     }
