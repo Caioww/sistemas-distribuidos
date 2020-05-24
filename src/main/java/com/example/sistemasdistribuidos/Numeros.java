@@ -5,9 +5,10 @@ public class Numeros {
 	public String numero;
 	public int indice;
 	
-	public Numeros(String numero,int indice){
-        this.numero=numero;
-        this.indice=indice;
+	public Numeros(String numero, int indice){
+		this.numero=numero;
+		this.indice=indice;
+
     }
 	
 	public String getNumero() {

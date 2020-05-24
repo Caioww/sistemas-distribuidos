@@ -1,51 +1,47 @@
 package com.example.sistemasdistribuidos;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.List;
 
 public class CpfCnpj implements Runnable {
 	
     
 	public PrintWriter gravarArq;
-    public String[] cpf;
+    public Numeros cpf;
+    public List<Numeros> lista;
+
     
-    public CpfCnpj(String [] cpf, PrintWriter gravarArq){
+    public CpfCnpj(Numeros cpf, List<Numeros> lista, PrintWriter gravarArq){
         this.cpf=cpf;
         this.gravarArq=gravarArq;
+        this.lista=lista;
     }
 
 	@Override
 	public void run() {
-
-		System.out.println(Thread.currentThread().getName()+" Start. Command = "+ Arrays.toString(cpf));	
-		String valida = Arrays.toString(cpf);
+		
+		String valida = cpf.getNumero();
    	 	valida = valida.substring(1, valida.length()-1).replace("]", "").replace("[", "").replaceAll("\\s+","");
         boolean validaCpf = verificaEhCpf(valida);
-        
         
         if(validaCpf) {
        	 VerificadorCpf verificarCPF = new VerificadorCpf();
        	 String numero = verificarCPF.obterNumeracaoCPF(valida);
-       	 gravaNoArquivo(numero, gravarArq);
-       	 
+       	 gravaLista(cpf, lista, numero);
+
         }else {
        	 VerificadorCnpj verificadorCnpj = new VerificadorCnpj();
        	 String numero = verificadorCnpj.obterNumeracaoCNPJ(valida);
-       	 gravaNoArquivo(numero, gravarArq);
-       	 
-        }
-        System.out.println(Thread.currentThread().getName()+" End.");
-       
-       
-		
-		
+       	 gravaLista(cpf, lista, numero);
+  	 
+       }           
+	
 	}
 	
+	private synchronized void gravaLista(Numeros cpf2, List<Numeros> lista2, String numero) {
+		lista.set(cpf2.getIndice(), new Numeros(numero, cpf.getIndice()));
+	}
 
-	   private static synchronized void gravaNoArquivo(String n,PrintWriter gravarArq) {
-	         gravarArq.println(n);
-	     }
-	
 	static boolean verificaEhCpf(String numero) {
    	 return numero.length() == 9;
    	 
